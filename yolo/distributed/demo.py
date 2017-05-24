@@ -60,9 +60,9 @@ net = YoloTinyNet(common_params, net_params, test=True)
 image = tf.placeholder(tf.float32, (1, 448, 448, 3))
 predicts = net.inference(image)
 
-sess = tf.Session('grpc://140.114.79.82:8888')
+sess = tf.Session('grpc://127.0.0.1:8888')
 
-np_img = cv2.imread('in.jpg')
+np_img = cv2.imread(sys.argv[1])
 resized_img = cv2.resize(np_img, (448, 448))
 np_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
 

@@ -112,7 +112,7 @@ class YoloTinyNet(Net):
     Return:
       iou: 3-D tensor [CELL_SIZE, CELL_SIZE, BOXES_PER_CELL]
     """
-    with tf.device('/job:ps/task:0'):
+    with tf.device('/job:worker/task:1'):
         boxes1 = tf.stack([boxes1[:, :, :, 0] - boxes1[:, :, :, 2] / 2, boxes1[:, :, :, 1] - boxes1[:, :, :, 3] / 2,
                           boxes1[:, :, :, 0] + boxes1[:, :, :, 2] / 2, boxes1[:, :, :, 1] + boxes1[:, :, :, 3] / 2])
         boxes1 = tf.transpose(boxes1, [1, 2, 3, 0])
@@ -152,7 +152,7 @@ class YoloTinyNet(Net):
       predict: 3-D tensor [cell_size, cell_size, 5 * boxes_per_cell]
       labels : [max_objects, 5]  (x_center, y_center, w, h, class)
     """
-    with tf.device('/job:worker/task:0'):
+    with tf.device('/job:worker/task:2'):
         label = labels[num:num+1, :]
         label = tf.reshape(label, [-1])
 
