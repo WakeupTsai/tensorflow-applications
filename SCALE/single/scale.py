@@ -3,6 +3,7 @@ import tensorflow as tf
 import paho.mqtt.client as mqtt
 import numpy as np
 import json
+import curses
 
 BROKER = "[broker-address]"
 TOPIC = "[subscribe-topic]"
@@ -12,6 +13,11 @@ mq5 = np.array([])
 mq7 = np.array([])
 mq131 = np.array([])
 mq135 = np.array([])
+
+mq5_average = 0
+mq7_average = 0
+mq131_average = 0
+mq135_average = 0
 
 sess = tf.Session()
 mq5_variable = tf.Variable(0,dtype=tf.float64, name='mq5_variable')
@@ -66,8 +72,9 @@ mq135_op_divide = tf.divide(mq135_sum_variable, size, name="mq135_op_divide")
 assign_mq135_divide = tf.assign(mq135_average_variable, mq135_op_divide)
 
 
-def mq5_average(value):
+def mq5_result(value):
     global mq5
+    global mq5_average
     sess.run(tf.global_variables_initializer())
 
     if mq5.size == QUEUE_SIZE:
@@ -79,11 +86,13 @@ def mq5_average(value):
     for index, mq5_item in enumerate(mq5):
         result = sess.run(assign_mq5_add, feed_dict={item:value})
 
-    print "Average MQ5: " + str(sess.run(assign_mq5_divide, feed_dict={size:mq5.size}))
+    mq5_average = sess.run(assign_mq5_divide, feed_dict={size:mq5.size})
+    result_print()
 
 
-def mq7_average(value):
+def mq7_result(value):
     global mq7
+    global mq7_average
     sess.run(tf.global_variables_initializer())
 
     if mq7.size == QUEUE_SIZE:
@@ -95,10 +104,13 @@ def mq7_average(value):
     for index, mq7_item in enumerate(mq7):
         result = sess.run(assign_mq7_add, feed_dict={item:value})
 
-    print "Average MQ7: " + str(sess.run(assign_mq7_divide, feed_dict={size:mq7.size}))
+    mq7_average = sess.run(assign_mq7_divide, feed_dict={size:mq7.size})
+    result_print()
 
-def mq131_average(value):
+
+def mq131_result(value):
     global mq131
+    global mq131_average
     sess.run(tf.global_variables_initializer())
 
     if mq131.size == QUEUE_SIZE:
@@ -110,11 +122,13 @@ def mq131_average(value):
     for index, mq131_item in enumerate(mq131):
         result = sess.run(assign_mq131_add, feed_dict={item:value})
 
-    print "Average MQ131: " + str(sess.run(assign_mq131_divide, feed_dict={size:mq131.size}))
+    mq131_average = sess.run(assign_mq131_divide, feed_dict={size:mq131.size})
+    result_print()
 
 
-def mq135_average(value):
+def mq135_result(value):
     global mq135
+    global mq135_average
     sess.run(tf.global_variables_initializer())
 
     if mq135.size == QUEUE_SIZE:
@@ -125,9 +139,23 @@ def mq135_average(value):
 
     for index, mq135_item in enumerate(mq135):
         result = sess.run(assign_mq135_add, feed_dict={item:value})
+    
+    mq135_average = sess.run(assign_mq135_divide, feed_dict={size:mq135.size})
+    result_print()
 
-    print "Average MQ135: " + str(sess.run(assign_mq135_divide, feed_dict={size:mq135.size}))
 
+def result_print():
+    global mq5_average
+    global mq7_average
+    global mq131_average
+    global mq135_average
+              
+    stdscr.addstr(0, 0,"========SCALE========")
+    stdscr.addstr(1, 0, "Average MQ5  : " + str(mq5_average))
+    stdscr.addstr(2, 0, "Average MQ7  : " + str(mq7_average))
+    stdscr.addstr(3, 0, "Average MQ131: " + str(mq131_average))
+    stdscr.addstr(4, 0, "Average MQ135: " + str(mq135_average))
+    stdscr.refresh()
 
 
 def json_parse(msg):
@@ -144,13 +172,13 @@ def on_message(client, userdata, msg):
     event, value = json_parse(msg.payload)
 
     if event == "pollution_air_mq5":
-        mq5_average(value)
+        mq5_result(value)
     elif event == "pollution_air_mq7":
-        mq7_average(value)
+        mq7_result(value)
     elif event == "pollution_air_mq131":
-        mq131_average(value)
+        mq131_result(value)
     elif event == "pollution_air_mq135":
-        mq135_average(value)
+        mq135_result(value)
 
 
 
@@ -160,4 +188,13 @@ if __name__ == "__main__":
     client.on_message = on_message
     client.connect(BROKER, 1883, 60)
 
-    client.loop_forever()
+    stdscr = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+
+    try:
+        client.loop_forever()
+    finally:
+        curses.echo()
+        curses.nocbreak()
+        curses.endwin()
