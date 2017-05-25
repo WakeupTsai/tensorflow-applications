@@ -80,6 +80,9 @@ np_predict = sess.run(predicts, feed_dict={image: np_img})
 
 xmin, ymin, xmax, ymax, class_num = process_predicts(np_predict)
 class_name = classes_name[class_num]
+
+print ("Object Detection: " + classes_name[class_num])
+
 cv2.rectangle(resized_img, (int(xmin), int(ymin)), (int(xmax), int(ymax)), (0, 0, 255))
 cv2.putText(resized_img, class_name, (int(xmin), int(ymin)), 2, 1.5, (0, 0, 255))
 cv2.imwrite('out.jpg', resized_img)
