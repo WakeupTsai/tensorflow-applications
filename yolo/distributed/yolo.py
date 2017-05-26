@@ -60,7 +60,7 @@ net = YoloTinyNet(common_params, net_params, test=True)
 image = tf.placeholder(tf.float32, (1, 448, 448, 3))
 predicts = net.inference(image)
 
-sess = tf.Session('grpc://127.0.0.1:8888')
+sess = tf.Session("grpc://127.0.0.1:8888")
 
 np_img = cv2.imread(sys.argv[1])
 resized_img = cv2.resize(np_img, (448, 448))
@@ -86,3 +86,4 @@ print ("Object Detection: " + classes_name[class_num])
 cv2.rectangle(resized_img, (int(xmin), int(ymin)), (int(xmax), int(ymax)), (0, 0, 255))
 cv2.putText(resized_img, class_name, (int(xmin), int(ymin)), 2, 1.5, (0, 0, 255))
 cv2.imwrite('out.jpg', resized_img)
+sess.close()

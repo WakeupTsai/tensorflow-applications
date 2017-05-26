@@ -2,7 +2,7 @@ import tensorflow as tf
 
 # Configuration of cluster
 ps_hosts = [ "127.0.0.1:8888" ]
-worker_hosts = [ "127.0.0.1:8887","127.0.0.1:8886","127.0.0.1:8885"]
+worker_hosts = [ "127.0.0.1:8887","127.0.0.1:8886"]
 cluster = tf.train.ClusterSpec({"ps": ps_hosts, "worker": worker_hosts})
 
 
