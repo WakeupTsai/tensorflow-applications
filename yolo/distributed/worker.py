@@ -1,18 +1,22 @@
 import tensorflow as tf
 
-# Configuration of cluster
-ps_hosts = [ "127.0.0.1:8888" ]
-worker_hosts = [ "127.0.0.1:8887","127.0.0.1:8886"]
-cluster = tf.train.ClusterSpec({"ps": ps_hosts, "worker": worker_hosts})
+# Flags for defining the tf.train.ClusterSpec
+tf.app.flags.DEFINE_string("ps_hosts", "",
+                           "Comma-separated list of hostname:port pairs")
+tf.app.flags.DEFINE_string("worker_hosts", "",
+                           "Comma-separated list of hostname:port pairs")
 
-
-
-tf.app.flags.DEFINE_string("job_name", "worker", "One of 'ps', 'worker'")
+# Flags for defining the tf.train.Server
+tf.app.flags.DEFINE_string("job_name", "", "One of 'ps', 'worker'")
 tf.app.flags.DEFINE_integer("task_index", 0, "Index of task within the job")
 
 FLAGS = tf.app.flags.FLAGS
 
 def main(_):
+    ps_hosts = FLAGS.ps_hosts.split(",")
+    worker_hosts = FLAGS.worker_hosts.split(",")
+    cluster = tf.train.ClusterSpec({"ps": ps_hosts, "worker": worker_hosts})
+    
     server = tf.train.Server(cluster,
                              job_name=FLAGS.job_name,
                              task_index=FLAGS.task_index)
@@ -20,3 +24,5 @@ def main(_):
 
 if __name__ == "__main__":
     tf.app.run()
+
+
