@@ -22,17 +22,6 @@ sound_classification = {
     9:"street_music"
 }
 
-# Data
-sound_data = np.load('../audio-data-extraction/urban-sound-from-metadata.npz')
-X_data = sound_data['X']
-y_data = sound_data['y']
-
-# Define training percentage and test
-from sklearn.model_selection import train_test_split
-X_sub, X_test, y_sub, y_test = train_test_split(X_data, y_data, test_size=0.2)
-X_train, X_val, y_train, y_val = train_test_split(X_sub, y_sub, test_size=0.2)
-
-
 # Model Variables
 training_epochs = 6000
 n_dim = 193  # The model has 193 features extracted with librosa
