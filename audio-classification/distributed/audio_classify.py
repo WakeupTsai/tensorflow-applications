@@ -6,7 +6,7 @@ import tensorflow as tf
 import sys
 
 sys.path.append("../audio-data-extraction")
-import parse
+import parse_audio as parse
 
 # sound classification
 sound_classification = {
